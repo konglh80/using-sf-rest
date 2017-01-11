@@ -114,6 +114,16 @@ URL: <instance_url>/services/data/v37.0/sobjects/Moblor_Tack__TimeCard__c/a2gN00
 *参考：
 [Delete a Record](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_delete_record.htm)*
 
+### 读取记录
+通过REST API删除一条Moblor_Tack__TimeCard__c记录。
+例子：
+`<instance_url>/services/data/v37.0/sobjects/<Object API Name>/<Record ID>?fields=Field1,Field2...`
+```
+HTTP Method: GET
+URL: <instance_url>/services/data/v37.0/sobjects/Moblor_Tack__TimeCard__c/a2gN0000000SCfAIAW?fields=Moblor_Tack__Description__c,Moblor_Tack__Hours__c
+```
+*PS：如果不指定任何字段，则查询所有字段的值（`<instance_url>/services/data/v37.0/sobjects/<Object API Name>/<Record ID>`）*
 
-
+*参考：
+[Get Field Values from a Standard Object Record](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_get_field_values.htm)*
 
