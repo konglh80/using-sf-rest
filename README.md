@@ -1,10 +1,9 @@
 # 使用Salesforce REST API
 
-  - 创建一个Connected App
-  - User-Agent OAuth Authentication Flow
-  - 调用Salesforce REST API
-  - 使用Salesforce Workbench
-  - 使用Refresh Token获取新的Access Token
+  - [创建一个Connected App](#创建一个connected-app)
+  - [User-Agent OAuth Authentication Flow](#user-agent-oauth-authentication-flow)
+  - [使用Salesforce REST API](#使用salesforce-rest-api-1)
+  - [使用Salesforce Workbench](#使用salesforce-workbench)
 
 ## 创建一个Connected App
 - 打开[Apps列表](https://ap2.salesforce.com/02u?retURL=%2Fui%2Fsetup%2FSetup%3Fsetupid%3DDevTools&setupid=TabSet)，点击新建一个Connected App。
