@@ -166,3 +166,6 @@ URL: <instance_url>/services/data/v37.0/sobjects/Moblor_Tack__TimeCard__c/a2gN00
 ### REST Explorer
 ![New Connected App](/images/workbench-rest-explorer.png)
 
+
+## 其他参考
+[SwiftlySalesforce](https://github.com/mike4aday/SwiftlySalesforce) - Swift, Salesforce, iOS, mobile: an easy-to-use framework for building native mobile apps with Swift & the Salesforce Platform
