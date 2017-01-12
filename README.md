@@ -14,14 +14,17 @@
 - 勾选`API (Enable OAuth Settings)`部分的`Enable OAuth Settings`，并继续填写`Callback URL`，例如：`callback://oauth-success`。
 - 选择`Selected OAuth Scopes`，包括`Access and manage your data (api)`，`Access your basic information (id, profile, email, address, phone)`，`Perform requests on your behalf at any time (refresh_token, offline_access)`，其余可不填，页面下方找到并点击`Save`按钮。
 ![New Connected App](/images/new-connected-app-consumer-key.png)
-- 创建成功后会进入`Connected App Detail`页面，其中我们唯一需要的是`Consumer Key`。
+- 创建成功后会进入`Connected App Detail`页面，其中我们需要的是`Consumer Key`和`Consumer Secret`。
 
 *PS：新建的Connected App需要等几分钟后生效，立即使用`Consumer Key`有时会提示无效。*
 
-*[官方文档供参考](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_defining_remote_access_applications.htm)。*
+*参考：
+[Defining Connected Apps](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_defining_remote_access_applications.htm)。*
 
 ## User-Agent OAuth Authentication Flow
 调用REST API前需要引导用户进行OAuth认证以获得Access Token，下面介绍Salesforce User-Agent OAuth Authentication Flow。
+
+### Grant Token
 - 将用户引导至`https://login.salesforce.com/services/oauth2/authorize`，并在URL中附加如下参数。（Sandbox环境认证URL是`https://test.salesforce.com/services/oauth2/authorize`）
 1. `response_type=token`
 2. `client_id=<上一步创建Connected App后得到的Consumer Key>`
@@ -32,12 +35,39 @@ https://login.salesforce.com/services/oauth2/authorize?response_type=token&clien
 ```
 - 接下来用户需要在Salesforce标准登录页面输入自己的用户名和密码完成认证过程，认证成功后会跳转至`callback://oauth-success`页面，并会将`access_token/refresh_token/instance_url`等信息附加到URL中。
 ```
-// 样例
 callback://oauth-success#access_token=00D28000000HjOH%21AQgAQPTO8.7zlmIe9EOXhdAzkXvQLdnj3EPCK1LkZPILEKoxMj0yz18nq6Hjns7sEzfkBaaLprVMRnOkEElgZsSV2_JEcunB&refresh_token=5Aep861TSESvWeug_wdvqFJuAURkIDcmWIctIHpXuYSqCDJ1uXoiCPLp_cpSjmwT6gu1lhCxIQNir9JM.wEHsxO&instance_url=https%3A%2F%2Fap2.salesforce.com&id=https%3A%2F%2Flogin.salesforce.com%2Fid%2F00D28000000HjOHEA0%2F00528000000Dp5CAAS&issued_at=1484124973986&signature=CeCJcczYoBZtXRHgIf%2BbiCcMvkwjRhhMsd0d1nybmT8%3D&scope=id+api+refresh_token&token_type=Bearer
 ```
 *PS：由于access_token/refresh_token/instance_url等数据包含在URL中返回，某些情况会包含特殊字符，因此会被URI转码，需要进行URI解码后使用，确保无误。*
 
-*[官方文档供参考](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_understanding_user_agent_oauth_flow.htm)*
+*参考：
+[Understanding the User-Agent OAuth Authentication Flow](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_understanding_user_agent_oauth_flow.htm)*
+
+### Refresh Token
+Refresh Token的URL是`https://login.salesforce.com/services/oauth2/token`，需要的参数如下。（Sandbox环境URL是`https://test.salesforce.com/services/oauth2/token`）
+1. `grant_type=refresh_token`
+2. `client_id=<创建Connected App后得到的Consumer Key>`
+3. `client_secret=<创建Connected App后得到的Consumer Key>`
+4. `refresh_token=<Grant Token后得到的refresh_token>`
+
+```
+HTTP Method: POST
+URL: https://login.salesforce.com/services/oauth2/token?grant_type=refresh_token&client_id=3MVG9ZL0ppGP5UrAPuXwIS5TUnERw1UfZvUBMHr_8v0cOpSCUJ64aH8pVxZx9ek6JivYkaKns..vafP7rFfcr&client_secret=3463673647331733445&refresh_token=5Aep861TSESvWeug_wdvqFJuAURkIDcmWIctIHpXuYSqCDJ1uXoiCPLp_cpSjmwT6gu1lhCxIQNir9JM.wEHsxO
+```
+请求成功将返回JSON格式的数据。
+```
+{
+  "access_token": "00D28000000HjOH!AQgAQKHeky.4zdKFVRW6a2WjdY5RRDTqfifRYrPFDojwc4Y6.T14v9PTH6sBwvggOcMdYlJ0eSh3sKNvbByT1jfmeczvy1cU",
+  "signature": "IA+FYyGPVB2qJknV2LTCdmVWb/KK7lW2vKF8sN6AglQ=",
+  "scope": "refresh_token id api",
+  "instance_url": "https://ap2.salesforce.com",
+  "id": "https://login.salesforce.com/id/00D28000000HjOHEA0/00528000000Dp5CAAS",
+  "token_type": "Bearer",
+  "issued_at": "1484192173128"
+}
+```
+
+*参考：
+[Understanding the OAuth Refresh Token Process](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_understanding_user_agent_oauth_flow.htm)*
 
 ## 使用Salesforce REST API
 OAuth成功后返回的数据中，`instance_url`和`access_token`，用于直接访问Salesforce REST API。在向Salesforce发起REST请求之前需要做一些准备工作。
@@ -126,4 +156,14 @@ URL: <instance_url>/services/data/v37.0/sobjects/Moblor_Tack__TimeCard__c/a2gN00
 
 *参考：
 [Get Field Values from a Standard Object Record](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_get_field_values.htm)*
+
+
+## 使用Salesforce Workbench
+[Workbench](https://workbench.developerforce.com/login.php)为Salesforce开发人员提供了一个的实验场所，我们主要关注的是SOQL Query和REST Explorer。
+
+### SOQL Query
+![New Connected App](/images/workbench-soql-query.png)
+
+### REST Explorer
+![New Connected App](/images/workbench-rest-explorer.png)
 
